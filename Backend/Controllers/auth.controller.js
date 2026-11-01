@@ -1,6 +1,5 @@
 import crypto from "crypto"
 import jwt from "jsonwebtoken"
-import session from "express-session"
 import User from "../Models/user.model.js"
 
 
@@ -15,40 +14,26 @@ const GOOGLE_USERINFO_URL =
 
 
 
-// Used only to store and validate OAuth state.
-// This is not your application's login session.
-export function configureOAuthSession(next){
-  session({
-    name: "oauth.state",
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 10 * 60 * 1000,
-    },
-  })
-  next()
-}
-
-
 // Step 1: Redirect the user to Google.
-export function authGoogleController(req,res){
-  const state = crypto.randomBytes(32).toString("hex");
-
-  req.session.oauthState = state;
-
-  const params = new URLSearchParams({
-    client_id: process.env.GOOGLE_CLIENT_ID,
-    redirect_uri: process.env.GOOGLE_REDIRECT_URI,
-    response_type: "code",
-    scope: "openid email profile",
-    state,
-  });
-
-  res.redirect(`${GOOGLE_AUTH_URL}?${params.toString()}`);
+export function authGoogleController(req,res,next){
+  try {
+    const state = crypto.randomBytes(32).toString("hex");
+    req.session.oauthState = state;
+  
+    const params = new URLSearchParams({
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+      response_type: "code",
+      scope: "openid email profile",
+      state,
+    });
+  
+    res.redirect(`${GOOGLE_AUTH_URL}?${params.toString()}`);
+    
+  } catch (error) {
+    console.log(error?.message)
+    next(error)
+  }
 }
 
 export async function googleCallbackController(req,res,next){
@@ -147,7 +132,7 @@ export async function googleCallbackController(req,res,next){
     });
 
     return res.redirect(
-      `${process.env.FRONTEND_URL}/dashboard`
+      `${process.env.FRONTEND_URL}`
     );
   } catch (error) {
     next(error);
@@ -171,7 +156,6 @@ export async function getUserInfoController(req,res,next){
     next(error);
   }
 }
-
 
 export async function logoutController(req,res){
   res.clearCookie("token", {

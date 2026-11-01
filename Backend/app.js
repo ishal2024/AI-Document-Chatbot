@@ -1,6 +1,6 @@
-import express from 'express'
 import dotenv from 'dotenv'
 dotenv.config()
+import express from 'express'
 import { connectDB } from './Config/db.config.js'
 connectDB()
 
@@ -15,7 +15,9 @@ app.use(cookieParser());
 
 
 import authRouter from './routes/auth.routes.js'
-app.use('/auth/' , authRouter)
+import chatRouter from './routes/chat.routes.js'
+app.use('/auth' , authRouter)
+app.use('/chat' , chatRouter)
 
 app.get('/' , (req,res) => {
     res.send("Hello World")

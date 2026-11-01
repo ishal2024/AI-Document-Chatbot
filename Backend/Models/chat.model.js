@@ -33,6 +33,11 @@ const chatSchema = new mongoose.Schema({
     default: 0
   },
 
+  totalTokenUsage: {
+    type: Number,
+    default: 0
+  },
+
   lastMessageAt: {
     type: Date,
     default: null

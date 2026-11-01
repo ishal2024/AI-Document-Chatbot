@@ -16,10 +16,13 @@ app.use(cookieParser());
 
 import authRouter from './routes/auth.routes.js'
 import chatRouter from './routes/chat.routes.js'
+import messageRouter from './routes/message.routes.js'
+
 app.use('/auth' , authRouter)
 app.use('/chat' , chatRouter)
+app.use('/message' , messageRouter)
 
-app.get('/' , (req,res) => {
+app.get('/' , async (req,res) => {
     res.send("Hello World")
 })
 
